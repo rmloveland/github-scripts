@@ -1,0 +1,49 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Pithub;
+use Data::Dumper;
+
+die "Usage: gh-get-issues USER REPO [STATE]\n" unless scalar @ARGV >= 2;
+my ($user, $repo_name, $state) = @ARGV;
+
+$state //= 'open';
+
+my $token     = $ENV{GITHUB_API_TOKEN};
+my $api_user  = $ENV{GITHUB_USERNAME};
+
+my $i = Pithub::Issues->new (
+							 user => $api_user,
+							 token => $token
+							 );
+
+my $result = $i->list(
+					  user => $user,
+					  repo => "$repo_name",
+					  params => {
+								 state => $state,
+								}
+					 );
+
+while (my $row = $result->next) {
+  # print in Org syntax; easy to change this
+  my ($title, $number, $url, $body, $state) =
+	($row->{title}, $row->{number},
+	 $row->{html_url}, $row->{body},
+	 $row->{state});
+
+  $body =~ s///g;
+  $state = uc $state;
+
+  my $template = <<"EOF";
+** $state #$number $title             			   :$repo_name:
+   :PROPERTIES:
+   :URL: $url
+   :END:
+
+$body
+EOF
+
+  print $template;
+}

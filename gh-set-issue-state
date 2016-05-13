@@ -1,0 +1,32 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Pithub;
+use Data::Dumper;
+use File::Slurp qw/ slurp /;
+
+die "Usage: gh-set-issue-state USER REPO ISSUE-ID STATE\n" unless scalar @ARGV >= 4;
+my ($user, $repo_name, $issue_id, $state) = @ARGV;
+
+my $token     = $ENV{GITHUB_API_TOKEN};
+my $api_user  = $ENV{GITHUB_USERNAME};
+
+my $i = Pithub::Issues->new (
+							 user => $api_user,
+							 token => $token
+							 );
+
+my $result = $i->update(
+						user => $user,
+						repo => "$repo_name",
+						issue_id => $issue_id,
+						data => {
+								 state => "$state",
+								}
+					   );
+
+my $status = $result->response->status_line;
+
+die "'gh-add-issue-comment $user $repo_name $issue_id' failed with $status!\n"
+  unless $result->response->is_success;

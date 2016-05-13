@@ -1,0 +1,119 @@
+#+TODO: OPEN | CLOSED
+#+title: GitHub Scripts
+#+author: Rich Loveland
+#+email: r@rmloveland.com
+#+options: num:nil
+
+* Commands
+
+  This section has docs for each command.  You can also just run the
+  command with no arguments to see the built-in help, e.g.,
+
+  #+BEGIN_EXAMPLE
+  $ gh-get-issues
+  Usage: gh-get-issues USER REPO [STATE]
+  #+END_EXAMPLE
+
+** CLOSED gh-get-issues
+
+   Gets all of the repo's open issues by default.  Returns a tree of Org headings.
+
+   For example, if you call
+
+   #+BEGIN_EXAMPLE
+   $ gh-get-issues SeanTAllen flycheck-pony
+   #+END_EXAMPLE
+
+   you'll get the following Org output [1]:
+
+*** CLOSED #4 Update README to show how to install using package.el             			   :flycheck-pony:
+	:PROPERTIES:
+	:URL:      https://github.com/SeanTAllen/flycheck-pony/issues/4
+	:END:
+
+** CLOSED gh-get-issue
+
+   Get one issue.  Returns an Org heading.
+
+   For example, if you call
+
+   #+BEGIN_EXAMPLE
+   $ gh-get-issue prebid prebid.github.io 49   
+   #+END_EXAMPLE
+
+   you'll get the following Org output [1]:
+
+*** CLOSED #49 Document `pbjs.enableSendAllBids()` from an Ad Ops perspective             			   :prebid.github.io:
+	:PROPERTIES:
+	:URL:      https://github.com/prebid/prebid.github.io/issues/49
+	:END:
+
+	Basically, they need to set up one line item per bidder using the
+	new "tagged" bidder-specific keywords.
+
+** CLOSED gh-create-issue
+
+   Create an issue.  Returns an Org heading.
+
+   For example, if you call
+
+   #+BEGIN_EXAMPLE
+   $ gh-create-issue rmloveland stix 'Write user documentation'
+   #+END_EXAMPLE
+
+   the command then pops up your =$EDITOR= so you can write a
+   comment/description to go along with the issue's title.  (The
+   comment must be formatted in Markdown.)
+   
+   You'll get the following Org output [1]:
+
+*** CLOSED #1 Write user documentation								   :stix:
+	:PROPERTIES:
+	:URL:      https://github.com/rmloveland/stix/issues/1
+	:END:
+
+	This code needs at least a few lines of docs on how to use this
+	tool.
+
+** CLOSED gh-set-issue-state
+
+   #+BEGIN_EXAMPLE
+   $ gh-set-issue-state USER REPO ISSUE-ID STATE
+   #+END_EXAMPLE
+
+   The state can be either 'open' or 'closed'.
+
+   Quiet on success; dies with the HTTP error code on failure.
+
+** CLOSED gh-add-issue-comment
+
+   #+BEGIN_EXAMPLE
+   $ gh-add-issue-comment USER REPO ISSUE-ID
+   #+END_EXAMPLE
+
+   The command then pops up your =$EDITOR= so you can write the
+   comment text.  (The comment must be formatted in Markdown.)
+
+   Quiet on success; dies with the HTTP error code on failure.
+
+* Issues
+
+** OPEN Make the output template customizable
+
+   Maybe with an environment variable, e.g.,
+
+   #+BEGIN_SRC perl
+   my $template  = $ENV{GITHUB_OUTPUT_TEMPLATE};
+   #+END_SRC
+
+   Currently it's Org, but it'd be easy to do Markdown.
+
+
+[1] The states of the examples have been changed to 'CLOSED' so they
+don't clutter the visual output of this file.
+
+
+# Local Variables:
+# org-html-preamble: nil
+# org-html-postamble: nil
+# End:

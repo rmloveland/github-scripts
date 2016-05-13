@@ -1,0 +1,43 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Pithub;
+use Data::Dumper;
+use File::Slurp qw/ slurp /;
+
+die "Usage: gh-add-issue-comment USER REPO ISSUE-ID\n" unless scalar @ARGV >= 3;
+my ($user, $repo_name, $issue_id, $state) = @ARGV;
+
+my $token     = $ENV{GITHUB_API_TOKEN};
+my $api_user  = $ENV{GITHUB_USERNAME};
+
+# Pop open a temp file in $EDITOR for the issue body.
+
+my $tmpdir   = $ENV{TMPDIR};
+my $tmpfile  = "gh-create-issue-$user-$repo_name-$$.txt";
+my $tmp_path = $tmpdir . $tmpfile;
+
+# error check result of editor call here?
+my $editor      = $ENV{EDITOR};
+system qq{$editor $tmp_path};
+my $body        = slurp $tmp_path;
+
+my $c = Pithub::Issues::Comments->new (
+									   user => $api_user,
+									   token => $token
+									  );
+
+my $result = $c->create(
+						user => $user,
+						repo => "$repo_name",
+						issue_id => $issue_id,
+						data => {
+								 body => "$body",
+								}
+					   );
+
+my $status = $result->response->status_line;
+
+die "'gh-add-issue-comment $user $repo_name $issue_id' failed with $status!\n"
+  unless $result->response->is_success;
