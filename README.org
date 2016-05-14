@@ -7,8 +7,8 @@
 The scripts in this repo let you do simple things with GitHub issues
 from the command line.
 
-There docs for each command.  You can also just run the command with
-no arguments to see the built-in help, e.g.,
+There are docs for each command listed below.  You can also just run
+each command with no arguments to see the built-in help, e.g.,
 
 #+BEGIN_EXAMPLE
 $ gh-get-issues
