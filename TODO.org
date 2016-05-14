@@ -1,0 +1,11 @@
+#+title: TODO
+
+** OPEN Make the output template customizable
+
+   Maybe with an environment variable, e.g.,
+
+   #+BEGIN_SRC perl
+   my $template  = $ENV{GITHUB_OUTPUT_TEMPLATE};
+   #+END_SRC
+
+   Currently it's Org, but it'd be easy to do Markdown.
