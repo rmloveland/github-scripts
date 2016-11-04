@@ -36,6 +36,8 @@ while (my $row = $result->next) {
   $body =~ s///g;
   $state = uc $state;
 
+  $repo_name =~ s/\./_/g;
+
   my $template = <<"EOF";
 ** $state #$number $title             			   :$repo_name:
    :PROPERTIES:
