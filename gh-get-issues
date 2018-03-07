@@ -2,50 +2,62 @@
 
 use strict;
 use warnings;
+use autodie;
+use experimentals;
+use utf8::all;
 use Pithub;
+use Getopt::Long;
 use Data::Dumper;
 
 die "Usage: gh-get-issues USER REPO [STATE]\n" unless scalar @ARGV >= 2;
-my ($user, $repo_name, $state) = @ARGV;
+my ( $user, $repo_name, $state ) = @ARGV;
 
 $state //= 'open';
 
-my $token     = $ENV{GITHUB_API_TOKEN};
-my $api_user  = $ENV{GITHUB_USERNAME};
+my $token    = $ENV{GITHUB_API_TOKEN};
+my $api_user = $ENV{GITHUB_USERNAME};
 
-my $i = Pithub::Issues->new (
-							 user => $api_user,
-							 token => $token
-							 );
+my $i = Pithub::Issues->new(
+    user  => $api_user,
+    token => $token
+);
 
 my $result = $i->list(
-					  user => $user,
-					  repo => "$repo_name",
-					  params => {
-								 state => $state,
-								}
-					 );
+    user   => $user,
+    repo   => "$repo_name",
+    params => {
+        state => $state,
+    }
+);
 
-while (my $row = $result->next) {
-  # print in Org syntax; easy to change this
-  my ($title, $number, $url, $body, $state) =
-	($row->{title}, $row->{number},
-	 $row->{html_url}, $row->{body},
-	 $row->{state});
+ROW: while ( my $row = $result->next ) {
 
-  $body =~ s///g;
-  $state = uc $state;
+    my $assignee = $row->{assignee}->{login};
+    unless ( defined $assignee && $assignee eq $api_user ) {
+        next ROW;
+    }
 
-  $repo_name =~ s/\./_/g;
+    # print in Org syntax; easy to change this
+    my ( $title, $number, $url, $body, $state ) = (
+        $row->{title}, $row->{number}, $row->{html_url},
+        $row->{body},  $row->{state}
+    );
 
-  my $template = <<"EOF";
+    $body =~ s///g;
+    $state = uc $state;
+    if ( $state eq 'OPEN' ) { $state = 'TODO'; }
+
+    $repo_name =~ s/\./_/g;
+
+    my $template = <<"EOF";
 ** $state #$number $title             			   :$repo_name:
    :PROPERTIES:
    :URL: $url
    :END:
 
 $body
+
 EOF
 
-  print $template;
+    print $template;
 }
