@@ -1,0 +1,58 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use autodie;
+use experimentals;
+use utf8::all;
+use Pithub;
+use JSON;
+use Getopt::Long;
+use Data::Dumper;
+
+die qq[Usage: gh-search-issues USER REPO 'search_terms'\n]
+  unless scalar @ARGV >= 3;
+my ( $user, $repo_name, $query ) = @ARGV;
+
+my $token    = $ENV{GITHUB_API_TOKEN};
+my $api_user = $ENV{GITHUB_USERNAME};
+
+my $search = Pithub::SearchV3->new(
+    user  => $api_user,
+    token => $token
+);
+
+my $result = $search->issues( q => qq[$query repo:$user/$repo_name], );
+
+ROW: while ( my $row = $result->next ) {
+
+    my $items = $row->{items};
+
+    for my $item (@$items) {
+
+        ## print in Org syntax; easy to change this
+        my ( $title, $number, $url, $body, $state ) = (
+            $item->{title}, $item->{number}, $item->{html_url},
+            $item->{body},  $item->{state}
+        );
+
+        $body =~ s///g;
+        $state = uc $state;
+        if ( $state eq 'OPEN' )   { $state = 'TODO'; }
+        if ( $state eq 'CLOSED' ) { $state = 'DONE'; }
+
+        $repo_name =~ s/\./_/g;
+
+        my $template = <<"EOF";
+** $state #$number $title             			   :$repo_name:
+       :PROPERTIES:
+       :URL: $url
+       :END:
+
+    $body
+
+EOF
+
+        print $template;
+    }
+}
