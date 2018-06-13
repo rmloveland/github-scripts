@@ -6,35 +6,36 @@ use Pithub;
 use Data::Dumper;
 
 die "Usage: gh-get-issue USER REPO NUMBER\n" unless scalar @ARGV >= 2;
-my ($user, $repo_name, $number) = @ARGV;
+my ( $user, $repo_name, $number ) = @ARGV;
 
-my $token     = $ENV{GITHUB_API_TOKEN};
-my $api_user  = $ENV{GITHUB_USERNAME};
+my $token    = $ENV{GITHUB_API_TOKEN};
+my $api_user = $ENV{GITHUB_USERNAME};
 
-my $i = Pithub::Issues->new (
-							 user => $api_user,
-							 token => $token
-							 );
+my $i = Pithub::Issues->new(
+    user  => $api_user,
+    token => $token
+);
 
 my $result = $i->get(
-					 user => $user,
-					 repo => "$repo_name",
-					 issue_id => $number,
-					);
+    user     => $user,
+    repo     => "$repo_name",
+    issue_id => $number,
+);
 
-while (my $row = $result->next) {
-  # print in Org syntax; easy to change this
-  my ($title, $number, $url, $body, $state) =
-	($row->{title}, $row->{number},
-	 $row->{html_url}, $row->{body},
-	 $row->{state});
+while ( my $row = $result->next ) {
 
-  $body =~ s///g;
-  $state = uc $state;
-  $repo_name =~ s/\./_/g;
+    # print in Org syntax; easy to change this
+    my ( $title, $number, $url, $body, $state ) = (
+        $row->{title}, $row->{number}, $row->{html_url},
+        $row->{body},  $row->{state}
+    );
 
-  my $template = <<"EOF";
-** $state #$number $title             			   :$repo_name:
+    $body =~ s///g;
+    $state = uc $state;
+    $repo_name =~ s/\./_/g;
+
+    my $template = <<"EOF";
+** $state #$number $title    :$repo_name:
    :PROPERTIES:
    :URL: $url
    :END:
@@ -42,5 +43,5 @@ while (my $row = $result->next) {
 $body
 EOF
 
-  print $template;
+    print $template;
 }
