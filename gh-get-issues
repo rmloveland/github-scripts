@@ -43,6 +43,9 @@ ROW: while ( my $row = $result->next ) {
         $row->{body},  $row->{state}
     );
 
+    my $milestone = $row->{milestone}->{title};
+    $milestone //= '';
+
     $body =~ s///g;
     $state = uc $state;
     if ( $state eq 'OPEN' ) { $state = 'TODO'; }
@@ -50,7 +53,7 @@ ROW: while ( my $row = $result->next ) {
     $repo_name =~ s/\./_/g;
 
     my $template = <<"EOF";
-** $state #$number $title             			   :$repo_name:
+** $state #$number $title        :$repo_name:$milestone:
    :PROPERTIES:
    :URL: $url
    :END:
