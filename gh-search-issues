@@ -24,6 +24,8 @@ my $search = Pithub::SearchV3->new(
 
 my $result = $search->issues( q => qq[$query repo:$user/$repo_name], );
 
+say qq[* results for query: '$query'];
+
 ROW: while ( my $row = $result->next ) {
 
     my $items = $row->{items};
